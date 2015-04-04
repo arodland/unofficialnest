@@ -1,6 +1,7 @@
 package main
 
 import (
+    "encoding/json"
     "fmt"
     "log"
     "os"
@@ -20,5 +21,6 @@ func main() {
         log.Fatal(err)
     }
 
-    fmt.Println(status)
+    buf, _ := json.Marshal(status)
+    fmt.Println(string(buf))
 }
