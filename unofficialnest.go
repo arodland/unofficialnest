@@ -2,7 +2,6 @@ package unofficialnest
 
 import (
     "encoding/json"
-    "net/url"
     "time"
 )
 
@@ -22,20 +21,8 @@ func NewSession(creds Credentials) *NestSession {
 }
 
 func (nest *NestSession) GetStatusRaw() (interface{}, error) {
-    err := nest.RequireLogin()
-    if err != nil {
-        return nil, err
-    }
-
-    client := MakeClient()
-    req, err := MakeGet(
-        nest.TransportURL+"/v2/mobile/"+nest.User,
-        url.Values{},
-    )
-    if err != nil {
-        return nil, err
-    }
-    err = nest.Authenticate(req)
+    client := nest.MakeClient()
+    req, err := nest.MakeGet("", "/v2/mobile/"+nest.User, nil, true)
     if err != nil {
         return nil, err
     }

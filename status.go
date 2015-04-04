@@ -2,7 +2,6 @@ package unofficialnest
 
 import (
     "encoding/json"
-    "net/url"
 )
 
 type Status struct {
@@ -14,24 +13,15 @@ type Device struct {
 }
 
 func (nest *NestSession) GetStatus() (status Status, err error) {
-    err = nest.RequireLogin()
+    user, err := nest.GetUser()
     if err != nil {
         return
     }
-
-    client := MakeClient()
-    req, err := MakeGet(
-        nest.TransportURL+"/v2/mobile/"+nest.User,
-        url.Values{},
-    )
+    client := nest.MakeClient()
+    req, err := nest.MakeGet("", "/v2/mobile/"+user, nil, true)
     if err != nil {
         return
     }
-    err = nest.Authenticate(req)
-    if err != nil {
-        return
-    }
-
     res, err := client.Do(req)
     if err != nil {
         return

@@ -30,13 +30,14 @@ type ServiceURLs struct {
 }
 
 func (nest *NestSession) Login() error {
-    client := MakeClient()
-    req, err := MakePost(
-        "https://home.nest.com/user/login",
+    client := nest.MakeClient()
+    req, err := nest.MakePost(
+        "https://home.nest.com", "/user/login",
         url.Values{
             "username": {nest.Email},
             "password": {nest.Password},
         },
+        false,
     )
     if err != nil {
         return err
@@ -68,4 +69,10 @@ func (nest *NestSession) RequireLogin() error {
         return nil
     }
     return nest.Login()
+}
+
+func (nest *NestSession) GetUser() (user string, err error) {
+    err = nest.RequireLogin()
+    user = nest.User
+    return
 }

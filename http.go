@@ -1,6 +1,8 @@
 package unofficialnest
 
 import (
+    "bytes"
+    "encoding/json"
     "io"
     "net/http"
     "net/url"
@@ -12,35 +14,63 @@ const (
     expiresFormat    = "Mon, 02-Jan-2006 15:04:05 MST"
 )
 
-func MakeClient() http.Client {
+func (nest *NestSession) MakeClient() http.Client {
     return http.Client{}
 }
 
-func MakeRequest(method string, uri string, body io.Reader) (req *http.Request, err error) {
-    req, err = http.NewRequest(method, uri, body)
+func (nest *NestSession) MakeRequest(method, host, path string, body io.Reader, authenticated bool) (req *http.Request, err error) {
+    if authenticated {
+        err = nest.RequireLogin()
+        if err != nil {
+            return
+        }
+        if host == "" {
+            host = nest.TransportURL
+        }
+    }
+
+    req, err = http.NewRequest(method, host+path, body)
     if err != nil {
         return
     }
     req.Header.Add("User-Agent", defaultUserAgent)
+    if authenticated {
+        err = nest.Authenticate(req)
+    }
     return
 }
 
-func MakePost(uri string, params url.Values) (req *http.Request, err error) {
-    body := strings.NewReader(params.Encode())
-    req, err = MakeRequest("POST", uri, body)
+func (nest *NestSession) MakePost(host, path string, params interface{}, authenticated bool) (req *http.Request, err error) {
+    var body io.Reader
+    var ct string
+    if params != nil {
+        if urlValues, ok := params.(url.Values); ok {
+            body = strings.NewReader(urlValues.Encode())
+            ct = "application/x-www-form-urlencoded; charset=utf-8"
+        } else {
+            var js []byte
+            js, err = json.Marshal(params)
+            if err != nil {
+                return
+            }
+            body = bytes.NewBuffer(js)
+            ct = "application/json"
+        }
+    }
+    req, err = nest.MakeRequest("POST", host, path, body, authenticated)
     if err != nil {
         return
     }
-    req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+    req.Header.Add("Content-Type", ct)
     return
 }
 
-func MakeGet(uri string, params url.Values) (req *http.Request, err error) {
+func (nest *NestSession) MakeGet(host, path string, params url.Values, authenticated bool) (req *http.Request, err error) {
     qs := params.Encode()
     if qs != "" {
-        uri = uri + "?" + qs
+        path = path + "?" + qs
     }
-    req, err = MakeRequest("GET", uri, nil)
+    req, err = nest.MakeRequest("GET", host, path, nil, authenticated)
     return
 }
 
