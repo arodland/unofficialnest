@@ -8,14 +8,17 @@ import (
 
 type NestSession struct {
     ServiceURLs
+    Credentials
     User          string
     UserID        string
     AccessToken   string
     AccessExpires time.Time
 }
 
-func NewSession() *NestSession {
-    return &NestSession{}
+func NewSession(creds Credentials) *NestSession {
+    return &NestSession{
+        Credentials: creds,
+    }
 }
 
 func (nest *NestSession) GetStatus() (interface{}, error) {
@@ -27,7 +30,10 @@ func (nest *NestSession) GetStatus() (interface{}, error) {
     if err != nil {
         return nil, err
     }
-    nest.Authenticate(req)
+    err = nest.Authenticate(req)
+    if err != nil {
+        return nil, err
+    }
 
     res, err := client.Do(req)
     if err != nil {

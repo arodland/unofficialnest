@@ -14,13 +14,7 @@ func main() {
     }
     username, password := os.Args[1], os.Args[2]
 
-    nest := unofficialnest.NewSession()
-
-    _, err := nest.Login(username, password)
-    if err != nil {
-        log.Fatal(err)
-    }
-
+    nest := unofficialnest.NewSession(unofficialnest.Credentials{username, password})
     status, err := nest.GetStatus()
     if err != nil {
         log.Fatal(err)

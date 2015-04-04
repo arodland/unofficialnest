@@ -6,6 +6,11 @@ import (
     "time"
 )
 
+type Credentials struct {
+    Email    string
+    Password string
+}
+
 type LoginResponse struct {
     User        string      `json:"user"`
     UserID      string      `json:"user_id"`
@@ -24,27 +29,27 @@ type ServiceURLs struct {
     SupportURL         string `json:"support_url"`
 }
 
-func (nest *NestSession) Login(username string, password string) (*LoginResponse, error) {
+func (nest *NestSession) Login() error {
     client := MakeClient()
     req, err := MakePost(
         "https://home.nest.com/user/login",
         url.Values{
-            "username": {username},
-            "password": {password},
+            "username": {nest.Email},
+            "password": {nest.Password},
         },
     )
     if err != nil {
-        return nil, err
+        return err
     }
 
     res, err := client.Do(req)
     if err != nil {
-        return nil, err
+        return err
     }
 
     var lr LoginResponse
     if err := json.NewDecoder(res.Body).Decode(&lr); err != nil {
-        return nil, err
+        return err
     }
     nest.ServiceURLs = lr.URLs
     nest.User = lr.User
@@ -52,7 +57,15 @@ func (nest *NestSession) Login(username string, password string) (*LoginResponse
     nest.AccessToken = lr.AccessToken
     nest.AccessExpires, err = time.Parse(expiresFormat, lr.ExpiresIn)
     if err != nil {
-        return nil, err
+        return err
     }
-    return &lr, nil
+    return nil
+}
+
+func (nest *NestSession) RequireLogin() error {
+    if nest.AccessToken != "" && time.Now().Before(nest.AccessExpires) {
+        // we have an unexpired access token, do nothing
+        return nil
+    }
+    return nest.Login()
 }

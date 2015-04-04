@@ -44,9 +44,14 @@ func MakeGet(uri string, params url.Values) (req *http.Request, err error) {
     return
 }
 
-func (nest *NestSession) Authenticate(req *http.Request) {
+func (nest *NestSession) Authenticate(req *http.Request) error {
+    err := nest.RequireLogin()
+    if err != nil {
+        return err
+    }
     req.Header.Add("X-nl-user-id", nest.UserID)
     req.Header.Add("X-nl-protocol-version", "1")
     req.Header.Add("Authorization", "Basic "+nest.AccessToken)
     req.Header.Add("Accept-Language", "en")
+    return nil
 }
