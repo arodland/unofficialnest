@@ -5,11 +5,11 @@ import (
 )
 
 type Status struct {
-    Devices map[string]Device `json:"device"`
-}
-
-type Device struct {
-    BatteryLevel float64 `json:"battery_level"`
+    Device    map[string]Device         `json:"device"`
+    Schedule  map[string]DeviceSchedule `json:"schedule"`
+    Shared    map[string]DeviceShared   `json:"shared"`
+    Structure map[string]Structure      `json:"structure"`
+    Where     map[string]StructureWhere `json:"where"`
 }
 
 func (nest *NestSession) GetStatus() (status Status, err error) {
@@ -28,5 +28,10 @@ func (nest *NestSession) GetStatus() (status Status, err error) {
     }
 
     err = json.NewDecoder(res.Body).Decode(&status)
+
+    for _, sw := range status.Where {
+        sw.PopulateWhereMap()
+    }
+
     return
 }
