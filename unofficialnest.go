@@ -21,7 +21,12 @@ func NewSession(creds Credentials) *NestSession {
     }
 }
 
-func (nest *NestSession) GetStatus() (interface{}, error) {
+func (nest *NestSession) GetStatusRaw() (interface{}, error) {
+    err := nest.RequireLogin()
+    if err != nil {
+        return nil, err
+    }
+
     client := MakeClient()
     req, err := MakeGet(
         nest.TransportURL+"/v2/mobile/"+nest.User,
