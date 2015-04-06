@@ -6,12 +6,12 @@ import (
 )
 
 type NestSession struct {
-    ServiceURLs
+    serviceURLs
     Credentials
-    User          string
-    UserID        string
-    AccessToken   string
-    AccessExpires time.Time
+    user          string
+    userID        string
+    accessToken   string
+    accessExpires time.Time
 }
 
 func NewSession(creds Credentials) *NestSession {
@@ -21,8 +21,8 @@ func NewSession(creds Credentials) *NestSession {
 }
 
 func (nest *NestSession) GetStatusRaw() (interface{}, error) {
-    client := nest.MakeClient()
-    req, err := nest.MakeGet("", "/v2/mobile/"+nest.User, nil, true)
+    client := nest.makeClient()
+    req, err := nest.makeGet("", "/v2/mobile/"+nest.user, nil, true)
     if err != nil {
         return nil, err
     }

@@ -20,7 +20,7 @@ type Where struct {
     WhereID string `json:"where_id"`
 }
 
-func (s *StructureWhere) PopulateWhereMap() {
+func (s *StructureWhere) populateWhereMap() {
     s.WhereMap = make(map[string]*Where)
     for i, where := range s.Wheres {
         s.WhereMap[where.WhereID] = &s.Wheres[i]

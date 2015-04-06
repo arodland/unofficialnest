@@ -13,12 +13,12 @@ type Status struct {
 }
 
 func (nest *NestSession) GetStatus() (status Status, err error) {
-    user, err := nest.GetUser()
+    user, err := nest.getUser()
     if err != nil {
         return
     }
-    client := nest.MakeClient()
-    req, err := nest.MakeGet("", "/v2/mobile/"+user, nil, true)
+    client := nest.makeClient()
+    req, err := nest.makeGet("", "/v2/mobile/"+user, nil, true)
     if err != nil {
         return
     }
@@ -30,7 +30,7 @@ func (nest *NestSession) GetStatus() (status Status, err error) {
     err = json.NewDecoder(res.Body).Decode(&status)
 
     for _, sw := range status.Where {
-        sw.PopulateWhereMap()
+        sw.populateWhereMap()
     }
 
     return

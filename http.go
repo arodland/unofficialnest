@@ -14,13 +14,13 @@ const (
     expiresFormat    = "Mon, 02-Jan-2006 15:04:05 MST"
 )
 
-func (nest *NestSession) MakeClient() http.Client {
+func (nest *NestSession) makeClient() http.Client {
     return http.Client{}
 }
 
-func (nest *NestSession) MakeRequest(method, host, path string, body io.Reader, authenticated bool) (req *http.Request, err error) {
+func (nest *NestSession) makeRequest(method, host, path string, body io.Reader, authenticated bool) (req *http.Request, err error) {
     if authenticated {
-        err = nest.RequireLogin()
+        err = nest.requireLogin()
         if err != nil {
             return
         }
@@ -35,12 +35,12 @@ func (nest *NestSession) MakeRequest(method, host, path string, body io.Reader, 
     }
     req.Header.Add("User-Agent", defaultUserAgent)
     if authenticated {
-        err = nest.Authenticate(req)
+        err = nest.authenticate(req)
     }
     return
 }
 
-func (nest *NestSession) MakePost(host, path string, params interface{}, authenticated bool) (req *http.Request, err error) {
+func (nest *NestSession) makePost(host, path string, params interface{}, authenticated bool) (req *http.Request, err error) {
     var body io.Reader
     var ct string
     if params != nil {
@@ -57,7 +57,7 @@ func (nest *NestSession) MakePost(host, path string, params interface{}, authent
             ct = "application/json"
         }
     }
-    req, err = nest.MakeRequest("POST", host, path, body, authenticated)
+    req, err = nest.makeRequest("POST", host, path, body, authenticated)
     if err != nil {
         return
     }
@@ -65,23 +65,23 @@ func (nest *NestSession) MakePost(host, path string, params interface{}, authent
     return
 }
 
-func (nest *NestSession) MakeGet(host, path string, params url.Values, authenticated bool) (req *http.Request, err error) {
+func (nest *NestSession) makeGet(host, path string, params url.Values, authenticated bool) (req *http.Request, err error) {
     qs := params.Encode()
     if qs != "" {
         path = path + "?" + qs
     }
-    req, err = nest.MakeRequest("GET", host, path, nil, authenticated)
+    req, err = nest.makeRequest("GET", host, path, nil, authenticated)
     return
 }
 
-func (nest *NestSession) Authenticate(req *http.Request) error {
-    err := nest.RequireLogin()
+func (nest *NestSession) authenticate(req *http.Request) error {
+    err := nest.requireLogin()
     if err != nil {
         return err
     }
-    req.Header.Add("X-nl-user-id", nest.UserID)
+    req.Header.Add("X-nl-user-id", nest.userID)
     req.Header.Add("X-nl-protocol-version", "1")
-    req.Header.Add("Authorization", "Basic "+nest.AccessToken)
+    req.Header.Add("Authorization", "Basic "+nest.accessToken)
     req.Header.Add("Accept-Language", "en")
     return nil
 }
