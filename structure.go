@@ -1,7 +1,5 @@
 package unofficialnest
 
-import "fmt"
-
 type Structure struct {
     Timestamp int64 `json:"$timestamp"`
     Version   int   `json:"$version"`
