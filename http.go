@@ -18,6 +18,11 @@ func (nest *NestSession) makeClient() http.Client {
     return http.Client{}
 }
 
+// makeRequest creates a *http.Request with the given information. If authenticated
+// is set, requires the session to have a valid access token first. If the hostname
+// is blank, it will be replaced with the session's TransportURL. A spoofed
+// User-Agent is added so that the API will think we're a legitimate client and allow
+// the request.
 func (nest *NestSession) makeRequest(method, host, path string, body io.Reader, authenticated bool) (req *http.Request, err error) {
     if authenticated {
         err = nest.requireLogin()
@@ -40,6 +45,9 @@ func (nest *NestSession) makeRequest(method, host, path string, body io.Reader, 
     return
 }
 
+// makePost creates a POST request with the given information. If params is a
+// url.Values, the request body will be application/x-www-form-urlencoded; otherwise
+// it will be JSON.
 func (nest *NestSession) makePost(host, path string, params interface{}, authenticated bool) (req *http.Request, err error) {
     var body io.Reader
     var ct string
@@ -65,6 +73,7 @@ func (nest *NestSession) makePost(host, path string, params interface{}, authent
     return
 }
 
+// makeGet creates a GET request with the given information.
 func (nest *NestSession) makeGet(host, path string, params url.Values, authenticated bool) (req *http.Request, err error) {
     qs := params.Encode()
     if qs != "" {
@@ -74,6 +83,8 @@ func (nest *NestSession) makeGet(host, path string, params url.Values, authentic
     return
 }
 
+// authenticate adds the required headers for an authenticated request,
+// using data from a logged-in NestSession.
 func (nest *NestSession) authenticate(req *http.Request) error {
     err := nest.requireLogin()
     if err != nil {

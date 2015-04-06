@@ -4,6 +4,8 @@ import (
     "encoding/json"
 )
 
+// Status contains a report about the devices, structures, and users associated
+// with an account.
 type Status struct {
     Device    map[string]Device         `json:"device"`
     Schedule  map[string]DeviceSchedule `json:"schedule"`
@@ -12,6 +14,7 @@ type Status struct {
     Where     map[string]StructureWhere `json:"where"`
 }
 
+// GetStatus gets a Status from the Nest API and returns it.
 func (nest *NestSession) GetStatus() (status Status, err error) {
     user, err := nest.getUser()
     if err != nil {

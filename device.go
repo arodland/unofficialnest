@@ -4,6 +4,9 @@ import (
     "time"
 )
 
+// Device contains information about a Nest device (Thermostat or Protect).
+// If you can't find what you're looking for in here, it's probably in DeviceShared
+// instead; find it by looking in status.Shared with this device's SerialNumber.
 type Device struct {
     Timestamp    int64  `json:"$timestamp"`
     Version      int    `json:"$version"`
@@ -36,6 +39,9 @@ type ScheduleEntry struct {
     temp      float64 `json:"temp"`
 }
 
+// DeviceShared contains information about the state of a Nest device (Thermostat
+// or Protect), including the temperature and whether it is heating, cooling,
+// blowing the fan, etc.
 type DeviceShared struct {
     Timestamp int64 `json:"$timestamp"`
     Version   int   `json:"$version"`
@@ -63,6 +69,7 @@ type DeviceShared struct {
     HeatX3State bool `json:"hvac_heat_x3_state"`
 }
 
+// GetTimestamp converts the device's $timestamp field into a go time.Time.
 func (device *Device) GetTimestamp() time.Time {
     return time.Unix(
         device.Timestamp/1000,

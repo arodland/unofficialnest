@@ -1,5 +1,7 @@
 package unofficialnest
 
+// Structure is the building containing one or more Nest devices. It
+// contains information about the building itself, and the devices within it.
 type Structure struct {
     Timestamp int64 `json:"$timestamp"`
     Version   int   `json:"$version"`
