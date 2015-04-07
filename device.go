@@ -8,6 +8,7 @@ import (
 // If you can't find what you're looking for in here, it's probably in DeviceShared
 // instead; find it by looking in status.Shared with this device's SerialNumber.
 type Device struct {
+    status       *Status
     Timestamp    int64  `json:"$timestamp"`
     Version      int    `json:"$version"`
     SerialNumber string `json:"serial_number"`
@@ -25,6 +26,7 @@ type Device struct {
 }
 
 type DeviceSchedule struct {
+    status    *Status
     TimeStamp int64 `json:"$timestamp"`
     Version   int   `json:"$version"`
     Days      map[string]ScheduleDay
@@ -43,8 +45,10 @@ type ScheduleEntry struct {
 // or Protect), including the temperature and whether it is heating, cooling,
 // blowing the fan, etc.
 type DeviceShared struct {
-    Timestamp int64 `json:"$timestamp"`
-    Version   int   `json:"$version"`
+    status       *Status
+    serialNumber string
+    Timestamp    int64 `json:"$timestamp"`
+    Version      int   `json:"$version"`
 
     AutoAway int `json:"auto_away"`
 

@@ -7,6 +7,7 @@ import (
 // Status contains a report about the devices, structures, and users associated
 // with an account.
 type Status struct {
+    nest      *NestSession
     Device    map[string]Device         `json:"device"`
     Schedule  map[string]DeviceSchedule `json:"schedule"`
     Shared    map[string]DeviceShared   `json:"shared"`
@@ -31,9 +32,24 @@ func (nest *NestSession) GetStatus() (status Status, err error) {
     }
 
     err = json.NewDecoder(res.Body).Decode(&status)
+    status.nest = nest
 
-    for _, sw := range status.Where {
-        sw.populateWhereMap()
+    for id, dev := range status.Device {
+        dev.status = &status
+        status.Device[id] = dev
+    }
+    for id, shared := range status.Shared {
+        shared.status = &status
+        shared.serialNumber = id
+        status.Shared[id] = shared
+    }
+    for _, where := range status.Where {
+        where.populateWhereMap()
+    }
+    for id, structure := range status.Structure {
+        structure.status = &status
+        structure.uuid = id
+        status.Structure[id] = structure
     }
 
     return
