@@ -36,6 +36,8 @@ func (s *StructureWhere) populateWhereMap() {
     }
 }
 
+// Update sends an API request to change some attribute of the structure.
+// Payload is JSON.
 func (structure *Structure) Update(payload interface{}) error {
     id := structure.uuid
     nest := structure.status.nest
@@ -49,6 +51,7 @@ func (structure *Structure) Update(payload interface{}) error {
     return err
 }
 
+// SetAway sets the away status of the structure -- true for away, false for home.
 func (structure *Structure) SetAway(away bool) error {
     return structure.Update(map[string]interface{}{
         "away": away,

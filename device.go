@@ -82,6 +82,8 @@ func (device *Device) GetTimestamp() time.Time {
     )
 }
 
+// Update sends an API request to change some attribute of the device.
+// Payload is JSON.
 func (device *Device) Update(payload interface{}) error {
     id := device.SerialNumber
     nest := device.status.nest
@@ -95,6 +97,8 @@ func (device *Device) Update(payload interface{}) error {
     return err
 }
 
+// Update sends an API request to change some attribute of the device
+// shared structure. Payload is JSON.
 func (shared *DeviceShared) Update(payload interface{}) error {
     id := shared.serialNumber
     nest := shared.status.nest
@@ -108,6 +112,8 @@ func (shared *DeviceShared) Update(payload interface{}) error {
     return err
 }
 
+// SetTargetTemperature changes the target temperature of the thermostat.
+// tempC is in degrees Celsius.
 func (shared *DeviceShared) SetTargetTemperature(tempC float64) error {
     return shared.Update(map[string]interface{}{
         "target_change_pending": true,
@@ -115,6 +121,8 @@ func (shared *DeviceShared) SetTargetTemperature(tempC float64) error {
     })
 }
 
+// SetFanMode changes the fan mode of the thermostat. Valid
+// fanModes are 'auto' and 'on'.
 func (device *Device) SetFanMode(fanMode string) error {
     return device.Update(map[string]interface{}{
         "fan_mode": fanMode,
