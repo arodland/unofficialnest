@@ -11,7 +11,7 @@ import (
 
 func main() {
     if len(os.Args) != 3 {
-        log.Fatal("Usage: %s username password", os.Args[0])
+        log.Fatalf("Usage: %s username password", os.Args[0])
     }
     username, password := os.Args[1], os.Args[2]
 
