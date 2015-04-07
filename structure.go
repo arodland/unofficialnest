@@ -1,5 +1,10 @@
 package unofficialnest
 
+import (
+    "fmt"
+    "time"
+)
+
 // Structure is the building containing one or more Nest devices. It
 // contains information about the building itself, and the devices within it.
 type Structure struct {
@@ -29,4 +34,25 @@ func (s *StructureWhere) populateWhereMap() {
     for i, where := range s.Wheres {
         s.WhereMap[where.WhereID] = &s.Wheres[i]
     }
+}
+
+func (structure *Structure) Update(payload interface{}) error {
+    id := structure.uuid
+    nest := structure.status.nest
+    client := nest.makeClient()
+    req, err := nest.makePost("", "/v2/put/structure." + id, payload, true)
+    if err != nil {
+        return err
+    }
+    req.Header.Add("X-nl-base-version", fmt.Sprintf("%d", structure.Version))
+    _, err = client.Do(req)
+    return err
+}
+
+func (structure *Structure) SetAway(away bool) error {
+    return structure.Update(map[string]interface{}{
+        "away": away,
+        "away_setter": 0,
+        "away_timestamp": time.Now().UTC().Unix() * 1000,
+    })
 }

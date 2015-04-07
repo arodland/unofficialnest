@@ -1,6 +1,7 @@
 package unofficialnest
 
 import (
+    "fmt"
     "time"
 )
 
@@ -79,4 +80,43 @@ func (device *Device) GetTimestamp() time.Time {
         device.Timestamp/1000,
         (device.Timestamp%1000)*1000000,
     )
+}
+
+func (device *Device) Update(payload interface{}) error {
+    id := device.SerialNumber
+    nest := device.status.nest
+    client := nest.makeClient()
+    req, err := nest.makePost("", "/v2/put/device." + id, payload, true)
+    if err != nil {
+        return err
+    }
+    req.Header.Add("X-nl-base-version", fmt.Sprintf("%d",device.Version))
+    _, err = client.Do(req)
+    return err
+}
+
+func (shared *DeviceShared) Update(payload interface{}) error {
+    id := shared.serialNumber
+    nest := shared.status.nest
+    client := nest.makeClient()
+    req, err := nest.makePost("", "/v2/put/shared." + id, payload, true)
+    if err != nil {
+        return err
+    }
+    req.Header.Add("X-nl-base-version", fmt.Sprintf("%d",shared.Version))
+    _, err = client.Do(req)
+    return err
+}
+
+func (shared *DeviceShared) SetTargetTemperature(tempC float64) error {
+    return shared.Update(map[string]interface{}{
+        "target_change_pending": true,
+        "target_temperature": tempC,
+    })
+}
+
+func (device *Device) SetFanMode(fanMode string) error {
+    return device.Update(map[string]interface{}{
+        "fan_mode": fanMode,
+    })
 }
